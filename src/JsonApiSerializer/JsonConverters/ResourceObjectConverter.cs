@@ -163,6 +163,7 @@ namespace JsonApiSerializer.JsonConverters
             foreach (var prop in contract.Properties.Where(x=>!x.Ignored))
             {
                 var propValue = prop.ValueProvider.GetValue(value);
+                
                 if (propValue == null && (prop.NullValueHandling ?? serializer.NullValueHandling) == NullValueHandling.Ignore)
                     continue;
 
@@ -189,7 +190,15 @@ namespace JsonApiSerializer.JsonConverters
                         //so we will send out a probe to determine which one it is
                         var probe = new AttributeOrRelationshipProbe();
                         probe.WritePropertyName(prop.PropertyName);
-                        serializer.Serialize(probe, propValue);
+
+                        if (prop.Converter != null)
+                        {
+                            prop.Converter.WriteJson(probe, propValue, serializer);
+                        }
+                        else
+                        {
+                            serializer.Serialize(probe, propValue);
+                        }
 
                         (probe.PropertyType == AttributeOrRelationshipProbe.Type.Attribute
                             ? attributes
