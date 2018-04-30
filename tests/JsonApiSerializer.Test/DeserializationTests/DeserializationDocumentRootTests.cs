@@ -2,17 +2,8 @@
 using JsonApiSerializer.Test.Models.Articles;
 using JsonApiSerializer.Test.TestUtils;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace JsonApiSerializer.Test.DeserializationTests
@@ -66,6 +57,23 @@ namespace JsonApiSerializer.Test.DeserializationTests
                 new JsonApiSerializerSettings());
 
             AssertArticlesMatchData(articlesRoot.Data);
+        }
+
+        [Fact]
+        public void When_document_root_with_null_link_should_deserialize()
+        {
+            var json = EmbeddedResource.Read("Data.Articles.sample-with-link-null.json");
+
+            var articlesRoot = JsonConvert.DeserializeObject<DocumentRoot<Article[]>>(
+                json,
+                new JsonApiSerializerSettings());
+
+            Assert.Equal(4, articlesRoot.Links.Count);
+            Assert.NotNull(articlesRoot.Links["self"]);
+            Assert.NotNull(articlesRoot.Links["next"]);
+            Assert.NotNull(articlesRoot.Links["last"]);
+            Assert.NotNull(articlesRoot.Links["prev"]);
+            Assert.Null(articlesRoot.Links["prev"].Href);
         }
 
         [Fact]

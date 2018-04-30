@@ -1,15 +1,11 @@
-﻿using JsonApiSerializer.JsonApi;
+﻿using JsonApiSerializer.Exceptions;
 using JsonApiSerializer.JsonApi.WellKnown;
 using JsonApiSerializer.Util;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace JsonApiSerializer.JsonConverters
 {
@@ -51,8 +47,6 @@ namespace JsonApiSerializer.JsonConverters
             ReaderUtil.ReadUntilEnd(reader, preDataPath);
 
             return list;
-            
-           
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -60,16 +54,18 @@ namespace JsonApiSerializer.JsonConverters
             if (DocumentRootConverter.TryResolveAsRootData(writer, value, serializer))
                 return;
 
-            WriterUtil.WriteIntoElement(writer, DataPathRegex, PropertyNames.Data, () =>
+            var contractResolver = serializer.ContractResolver;
+            var enumerable = value as IEnumerable<object> ?? Enumerable.Empty<object>();
+            writer.WriteStartArray();
+            foreach (var valueElement in enumerable)
             {
-                var enumerable = value as IEnumerable<object> ?? Enumerable.Empty<object>();
-                writer.WriteStartArray();
-                foreach (var valueElement in enumerable)
-                {
-                    serializer.Serialize(writer, valueElement);
-                }
-                writer.WriteEndArray();
-            });
+                if (valueElement == null || !(contractResolver.ResolveContract(valueElement.GetType()).Converter is ResourceObjectConverter))
+                    throw new JsonApiFormatException(writer.Path,
+                        $"Expected to find to find resource objects within lists, but found '{valueElement}'", 
+                        "Resource indentifier objects MUST contain 'id' members");
+                serializer.Serialize(writer, valueElement);
+            }
+            writer.WriteEndArray();
         }
     }
 }

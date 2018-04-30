@@ -1,11 +1,5 @@
 ﻿using JsonApiSerializer.JsonConverters;
-using JsonApiSerializer.ReferenceResolvers;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using JsonApiSerializer.ContractResolvers;
 
 namespace JsonApiSerializer
@@ -20,13 +14,12 @@ namespace JsonApiSerializer
         /// Initializes a new instance of the <see cref="JsonApiSerializerSettings"/> class.
         /// </summary>
         /// <param name="resourceObjectConverter">The converter to use when serializing/deserializing a JsonApi resource object</param>
-        public JsonApiSerializerSettings(JsonConverter resourceObjectConverter) : base()
+        public JsonApiSerializerSettings(JsonConverter resourceObjectConverter)
         {
-            this.NullValueHandling = NullValueHandling.Ignore;
-            this.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-            this.ReferenceResolverProvider = () => new IncludedReferenceResolver();
-            this.ContractResolver = new JsonApiContractResolver(resourceObjectConverter);
-            this.DateParseHandling = DateParseHandling.None;
+            NullValueHandling = NullValueHandling.Ignore;
+            ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+            ContractResolver = new JsonApiContractResolver(resourceObjectConverter);
+            DateParseHandling = DateParseHandling.None;
         }
 
         /// <summary>

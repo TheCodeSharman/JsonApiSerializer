@@ -1,28 +1,14 @@
 ﻿using JsonApiSerializer.JsonApi;
 using JsonApiSerializer.Test.Models.Articles;
 using JsonApiSerializer.Test.TestUtils;
-using JsonApiSerializer.Util.JsonApiConverter.Util;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace JsonApiSerializer.Test.SerializationTests
 {
     public class SerializationAttributeTests
     {
-
-        public JsonApiSerializerSettings settings = new JsonApiSerializerSettings()
+        public JsonApiSerializerSettings settings = new JsonApiSerializerSettings
         {
             Formatting = Formatting.Indented, //pretty print makes it easier to debug
         };
@@ -41,22 +27,20 @@ namespace JsonApiSerializer.Test.SerializationTests
                 }
             };
 
-            var json = JsonConvert.SerializeObject(root,settings);
+            var json = JsonConvert.SerializeObject(root, settings);
 
             Assert.Equal(@"
-{
-  ""data"": {
-    ""id"": ""1234"",
-    ""type"": ""people"",
-    ""attributes"": {
-      ""last-name"": ""Smith"",
-      ""first-name"": ""John""
-    }
-  }
-}".Trim(), json);
+                {
+                  ""data"": {
+                    ""id"": ""1234"",
+                    ""type"": ""people"",
+                    ""attributes"": {
+                      ""last-name"": ""Smith"",
+                      ""first-name"": ""John""
+                    }
+                  }
+                }".Trim(), json, JsonStringEqualityComparer.Instance);
         }
-
-
 
         [Fact]
         public void When_fields_controlled_by_jsonnet_nullinclude_attributes_should_include_null()
@@ -65,7 +49,7 @@ namespace JsonApiSerializer.Test.SerializationTests
             {
                 Data = new ArticleWithNullIncludeProperties
                 {
-                    Id = "1234", 
+                    Id = "1234",
                     Title = null, //default NullValueHandling
                     Author = null, //NullValueHandling.Ignore
                     Comments = null //NullValueHandling.Include
@@ -75,15 +59,17 @@ namespace JsonApiSerializer.Test.SerializationTests
             var json = JsonConvert.SerializeObject(root, settings);
 
             Assert.Equal(@"
-{
-  ""data"": {
-    ""type"": ""articles"",
-    ""id"": ""1234"",
-    ""attributes"": {
-      ""comments"": null
-    }
-  }
-}".Trim(), json);
+            {
+                ""data"": {
+                ""type"": ""articles"",
+                ""id"": ""1234"",
+                ""relationships"": {
+                    ""comments"": {
+                    ""data"": []
+                    }
+                }
+                }
+            }".Trim(), json, JsonStringEqualityComparer.Instance);
         }
 
         [Fact]
@@ -100,7 +86,6 @@ namespace JsonApiSerializer.Test.SerializationTests
                 }
             };
 
-
             var newSettings = new JsonApiSerializerSettings()
             {
                 Formatting = Formatting.Indented, //pretty print makes it easier to debug
@@ -109,18 +94,21 @@ namespace JsonApiSerializer.Test.SerializationTests
             var json = JsonConvert.SerializeObject(root, newSettings);
 
             Assert.Equal(@"
-{
-  ""data"": {
-    ""type"": ""articles"",
-    ""id"": ""1234"",
-    ""links"": null,
-    ""attributes"": {
-      ""title"": null,
-      ""comments"": null
-    }
-  }
-}".Trim(), json);
+            {
+                ""data"": {
+                ""type"": ""articles"",
+                ""id"": ""1234"",
+                ""links"": null,
+                ""attributes"": {
+                    ""title"": null
+                },
+                ""relationships"": {
+                    ""comments"": {
+                    ""data"": []
+                    }
+                }
+                }
+            }".Trim(), json, JsonStringEqualityComparer.Instance);
         }
-
     }
 }
