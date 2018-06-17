@@ -1,9 +1,8 @@
-﻿using JsonApiSerializer.Util;
+﻿using JsonApiSerializer.SerializationState;
+using JsonApiSerializer.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JsonApiSerializer.JsonConverters
 {
@@ -18,13 +17,13 @@ namespace JsonApiSerializer.JsonConverters
         {
             var forkableReader = reader as ForkableJsonReader ?? new ForkableJsonReader(reader);
             var reference = ReaderUtil.ReadAheadToIdentifyObject(forkableReader);
-            var existingObject = serializer.ReferenceResolver.ResolveReference(null, reference.ToString());
-
-            if(existingObject == null)
+            var serializationData = SerializationData.GetSerializationData(forkableReader);
+            
+            if(!serializationData.Included.TryGetValue(reference, out var existingObject))
             {
                 //we dont know what type this object should be so we will just save it as a JObject
                 var unknownObject = serializer.Deserialize<JObject>(forkableReader);
-                serializer.ReferenceResolver.AddReference(null, reference.ToString(), unknownObject);
+                serializationData.Included.Add(reference, unknownObject);
                 return unknownObject;
             }
             else if(existingObject is JObject)

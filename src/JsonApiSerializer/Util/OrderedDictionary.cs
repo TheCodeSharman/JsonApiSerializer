@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace JsonApiSerializer.Util
 {
@@ -201,13 +197,6 @@ namespace JsonApiSerializer.Util
                 return Remove(item.Key);
             }
             #endregion Explicit ICollection Generic
-
-            #region Explicit IEnumerable Generic
-            IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-            #endregion Explicit IEnumerable Generic
 
             public sealed class KeyCollection : ICollection<TKey>
             {
