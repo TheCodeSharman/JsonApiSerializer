@@ -192,25 +192,6 @@ namespace JsonApiSerializer.JsonConverters
                         relationships.Add(new KeyValuePair<JsonProperty, object>(prop, relationshipObj));
                         break;
                     default:
-/*<<<<<<< HEAD
-                        //we do not know if it is an Attribute or a Relationship
-                        //so we will send out a probe to determine which one it is
-                        var probe = new AttributeOrRelationshipProbe();
-                        probe.WritePropertyName(prop.PropertyName);
-
-                        if (prop.Converter != null)
-                        {
-                            prop.Converter.WriteJson(probe, propValue, serializer);
-                        }
-                        else
-                        {
-                            serializer.Serialize(probe, propValue);
-                        }
-
-                        (probe.PropertyType == AttributeOrRelationshipProbe.Type.Attribute
-                            ? attributes
-                            : relationships).Add(probe);
-=======*/
                         attributes.Add(new KeyValuePair<JsonProperty, object>(prop, propValue));
                         break;
                 }
